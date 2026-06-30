@@ -1,5 +1,10 @@
+import 'package:clima/screens/location_screen.dart';
+import 'package:clima/services/networking.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import '../services/location.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+const apiKey = "dbf2e058c022a7e9fe93a3eee60aef42";
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -7,45 +12,40 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+  double? latitude;
+  double? longitude;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getLocation();
+    getLocationData();
   }
-  void getLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
+  void getLocationData() async {
+    Location location = Location();
+    await location.getCurrentLocation();
 
-    if (permission == LocationPermission.denied) {
-      print('Permission denied');
-      return;
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      print('Permission permanently denied');
-      await Geolocator.openAppSettings();
-      return;
-    }
-
-    final LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.low,
-      distanceFilter: 100,
-    );
-    Position position =await Geolocator.getCurrentPosition(
-      locationSettings: locationSettings,
+    NetworkHelper networkHelper = NetworkHelper(
+      'https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=$apiKey&units=metric',
     );
 
-    print(position);
+    var weatherData = await networkHelper.getData();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationScreen(locationWeather: weatherData),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+      body: Center(
+        child: SpinKitDoubleBounce(color: Colors.white, size: 100.0),
+      ),
     );
   }
 }
