@@ -7,14 +7,27 @@ const kTempTextStyle = TextStyle(
 
 const kMessageTextStyle = TextStyle(
   fontFamily: 'Spartan MB',
-  fontSize: 60.0,
+  fontSize: 40.0,
 );
 
 const kButtonTextStyle = TextStyle(
   fontSize: 30.0,
   fontFamily: 'Spartan MB',
+  color: Colors.white,
 );
 
 const kConditionTextStyle = TextStyle(
   fontSize: 100.0,
+);
+
+final kTextFiledInputDecoration=InputDecoration(
+  filled: true,
+  fillColor: Colors.white,
+  icon:Icon(Icons.location_city,color: Colors.white,),
+  hintText: 'Enter City Name',
+  hintStyle: TextStyle(color: Colors.grey),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10.0),
+    borderSide: BorderSide.none,
+  ),
 );

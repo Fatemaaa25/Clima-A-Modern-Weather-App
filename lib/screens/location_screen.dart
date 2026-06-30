@@ -1,3 +1,4 @@
+import 'package:clima/screens/city_screen.dart';
 import 'package:clima/services/weather.dart';
 import 'package:flutter/material.dart';
 import 'package:clima/utilities/constants.dart';
@@ -28,6 +29,13 @@ class _LocationScreenState extends State<LocationScreen> {
 
   void updateUI(dynamic weatherData) {
     setState(() {
+      if(weatherData==null){
+        temperature=0;
+        weatherIcon='Error';
+        weatherMess='unable to get weather data';
+        cityName='';
+        return;
+      }
       double temp = weatherData['main']['temp'];
       temperature = temp.toInt();
       var condition = weatherData['weather'][0]['id'];
@@ -54,39 +62,61 @@ class _LocationScreenState extends State<LocationScreen> {
         constraints: BoxConstraints.expand(),
         child: SafeArea(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () async{
+                      var weatherData=await weatherModel.getLocationWeather();
+                      updateUI(weatherData);
+                    },
                     child: Icon(Icons.near_me, size: 50.0),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () async{
+                      var typedName=await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return CityScreen();
+                          },
+                        ),
+                      );
+                      if(typedName!=null){
+                        var weatherData=await weatherModel.getCityWeather(typedName);
+                        updateUI(weatherData);
+                      }
+                    },
                     child: Icon(Icons.location_city, size: 50.0),
                   ),
                 ],
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 15.0),
-                child: Row(
-                  children: <Widget>[
-                    Text('$temperature°', style: kTempTextStyle),
-                    Text(weatherIcon!, style: kConditionTextStyle),
-                  ],
-                ),
+              SizedBox(height: 150.0,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Row(
+                      children: <Widget>[
+                        Text('$temperature°', style: kTempTextStyle),
+                        Text(weatherIcon!, style: kConditionTextStyle),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Text(
+                      "$weatherMess in $cityName!",
+                      textAlign: TextAlign.right,
+                      style: kMessageTextStyle,
+                    ),
+                  ),
+                ],
               ),
-              Padding(
-                padding: EdgeInsets.only(right: 15.0),
-                child: Text(
-                  "$weatherMess in $cityName!",
-                  textAlign: TextAlign.right,
-                  style: kMessageTextStyle,
-                ),
-              ),
+
             ],
           ),
         ),
